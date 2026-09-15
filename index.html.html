@@ -1,0 +1,263 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THAY DEE CLOTHING | ร้านขายเสื้อผ้าแฟชั่นออนไลน์</title>
+    <meta name="description" content="ร้านเสื้อผ้าออนไลน์สไตล์มินิมอลโมเดิร์น สั่งซื้อง่าย ปักตะกร้า ใส่ที่อยู่จัดส่ง และสแกนชำระเงินผ่าน BCEL OnePay QR Code ได้ทันที">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👕</text></svg>">
+</head>
+<body>
+
+    <!-- Site Header -->
+    <header class="site-header">
+        <div class="container">
+            <div class="header-inner">
+                <!-- Logo -->
+                <div class="logo-area" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                    <div id="logo-badge-wrap" class="logo-badge">TD</div>
+                    <div class="logo-text">
+                        <h1 id="logo-store-name">THAY DEE</h1>
+                        <span id="logo-store-tagline">CLOTHING & APPAREL</span>
+                    </div>
+                </div>
+
+                <!-- Search Input -->
+                <div class="header-search">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0118 0z"></path>
+                    </svg>
+                    <input type="text" id="search-input" placeholder="ค้นหาเสื้อผ้า เช่น เสื้อยืด, กางเกง, แจ็กเก็ต...">
+                </div>
+
+                <!-- Actions -->
+                <div class="header-actions">
+                    <div class="lang-switcher" title="สลับภาษา / ປ່ຽນພາສາ">
+                        <button id="lang-btn-th" class="lang-btn active" onclick="switchLanguage('th')">🇹🇭 ไทย</button>
+                        <button id="lang-btn-la" class="lang-btn" onclick="switchLanguage('la')">🇱🇦 ລາວ</button>
+                    </div>
+
+                    <button class="btn btn-outline btn-sm" onclick="openAdminModal('orders')" title="สำหรับเจ้าของร้าน">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span id="btn-admin-text">หลังบ้านร้านค้า</span>
+                    </button>
+
+                    <button class="cart-toggle-btn" onclick="toggleCartDrawer(true)" aria-label="เปิดตะกร้าสินค้า">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                        <span id="btn-cart-text">ตะกร้า</span>
+                        <span id="cart-badge" class="cart-badge-count" style="display: none;">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero-banner">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <span class="hero-tag" id="hero-tag-text">NEW COLLECTION 2026</span>
+                    <h2 id="hero-title-text">เสื้อผ้าดีไซน์มินิมอล<br>ใส่สบาย สไตล์ที่คุณเลือกได้</h2>
+                    <p id="hero-desc-text">คัดสรรเนื้อผ้าเกรดพรีเมียม สวมใส่สบาย ระบายอากาศได้ดี ตัดเย็บประณีต พร้อมส่งตรงถึงหน้าบ้านคุณ สั่งซื้อง่าย สแกนจ่ายด้วย BCEL OnePay ทันที</p>
+                    <div class="hero-features">
+                        <div class="hero-feature-item">
+                            <svg width="18" height="18" fill="none" stroke="#38bdf8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span id="hero-feat-ship">ส่งฟรีเมื่อช้อปครบ ₭400,000</span>
+                        </div>
+                        <div class="hero-feature-item">
+                            <svg width="18" height="18" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span id="hero-feat-bcel">สแกนจ่ายด้วย BCEL OnePay</span>
+                        </div>
+                        <div class="hero-feature-item">
+                            <svg width="18" height="18" fill="none" stroke="#38bdf8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span id="hero-feat-express">จัดส่งด่วน 1-2 วัน</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-image-wrap">
+                    <img id="hero-banner-img" src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1000&auto=format&fit=crop&q=80" alt="Fashion Store Collection">
+                </div>
+            </div>
+        </section>
+
+        <!-- Catalog Toolbar -->
+        <section class="catalog-toolbar">
+            <div class="category-pills" id="category-pills-container"></div>
+
+            <div class="sort-dropdown">
+                <select id="sort-select">
+                    <option value="popular">เรียงตาม: ยอดนิยม</option>
+                    <option value="price-asc">ราคา: ต่ำไปสูง</option>
+                    <option value="price-desc">ราคา: สูงไปต่ำ</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Product Grid -->
+        <section id="product-grid" class="product-grid"></section>
+    </main>
+
+    <!-- Slide-over Cart Drawer -->
+    <div id="cart-drawer-backdrop" class="drawer-backdrop" onclick="toggleCartDrawer(false)">
+        <div class="cart-drawer" onclick="event.stopPropagation()">
+            <div class="drawer-header">
+                <h3>
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    ตะกร้าสินค้าของคุณ
+                </h3>
+                <button class="close-btn" onclick="toggleCartDrawer(false)" aria-label="ปิดตะกร้า">&times;</button>
+            </div>
+
+            <div id="cart-free-shipping-bar" class="cart-free-shipping-bar"></div>
+
+            <div id="cart-items-list" class="cart-items-container"></div>
+
+            <div id="cart-drawer-footer" class="drawer-footer"></div>
+        </div>
+    </div>
+
+    <!-- Quick View Modal -->
+    <div id="quickview-modal" class="modal-overlay" onclick="closeQuickView()">
+        <div class="modal-window" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="closeQuickView()">&times;</button>
+            <div id="quickview-content"></div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal Flow -->
+    <div id="checkout-modal" class="modal-overlay">
+        <div class="modal-window checkout-modal-window" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="closeCheckoutModal()">&times;</button>
+            
+            <!-- Stepper Indicator -->
+            <div class="stepper-header">
+                <div id="step-ind-1" class="step-indicator active">
+                    <div class="step-number">1</div>
+                    <span class="step-title">ที่อยู่จัดส่ง</span>
+                </div>
+                <div id="step-ind-2" class="step-indicator">
+                    <div class="step-number">2</div>
+                    <span class="step-title">สแกนจ่าย QR Code</span>
+                </div>
+                <div id="step-ind-3" class="step-indicator">
+                    <div class="step-number">3</div>
+                    <span class="step-title">คำสั่งซื้อสำเร็จ</span>
+                </div>
+            </div>
+
+            <!-- Dynamic Content for Stepper -->
+            <div id="checkout-step-content"></div>
+        </div>
+    </div>
+
+    <!-- Admin / Store Management Modal -->
+    <div id="admin-modal" class="modal-overlay" onclick="closeAdminModal()">
+        <div class="modal-window admin-modal-window" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="closeAdminModal()">&times;</button>
+            
+            <!-- Admin Login View -->
+            <div id="admin-login-view" style="display: none; text-align: center; padding: 40px 20px;">
+                <h3 style="font-size: 1.5rem; margin-bottom: 8px;">ເຂົ້າສູ່ລະບົບຫຼັງບ້ານ / เข้าสู่ระบบหลังบ้าน</h3>
+                <p style="color: #64748b; margin-bottom: 24px; font-size: 0.9rem;">รหัสผ่านเริ่มต้น (Default Password): <strong>admin</strong></p>
+                <form onsubmit="handleAdminLogin(event)">
+                    <input type="password" id="admin-password-input" placeholder="ລະຫັດຜ່ານ / รหัสผ่าน" required style="width: 100%; max-width: 280px; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 16px; font-size: 1rem; text-align: center; display: block; margin-left: auto; margin-right: auto;">
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 32px;">ເຂົ້າສູ່ລະບົບ / ตกลง</button>
+                </form>
+            </div>
+
+            <!-- Admin Content View -->
+            <div id="admin-content-view" style="display: none;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="logo-badge" style="width: 32px; height: 32px; font-size: 0.95rem;">TD</div>
+                        <h3 style="font-size: 1.3rem; font-weight: 700;">ระบบหลังบ้านจัดการร้านค้า</h3>
+                    </div>
+                    <button class="btn btn-outline btn-sm" onclick="handleAdminLogout()">ออกจากระบบ / ອອກຈາກລະບົບ</button>
+                </div>
+
+                <div class="admin-tabs">
+                    <button id="tab-btn-orders" class="admin-tab-btn active" onclick="switchAdminTab('orders')">
+                        รายการคำสั่งซื้อ (Orders)
+                    </button>
+                    <button id="tab-btn-products" class="admin-tab-btn" onclick="switchAdminTab('products')">
+                        จัดการสินค้า (Products)
+                    </button>
+                    <button id="tab-btn-categories" class="admin-tab-btn" onclick="switchAdminTab('categories')">
+                        หมวดหมู่สินค้า (Categories)
+                    </button>
+                    <button id="tab-btn-settings" class="admin-tab-btn" onclick="switchAdminTab('settings')">
+                        ตั้งค่าร้านค้า & BCEL One
+                    </button>
+                </div>
+
+                <div id="admin-tab-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Slip Preview Modal -->
+    <div id="slip-modal" class="modal-overlay" onclick="closeSlipModal()">
+        <div style="max-width: 480px; max-height: 90vh; text-align: center;" onclick="event.stopPropagation()">
+            <img id="slip-full-img" src="" alt="Full Slip" style="max-width: 100%; max-height: 80vh; border-radius: 8px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
+            <div style="margin-top: 12px;">
+                <button class="btn btn-primary btn-sm" onclick="closeSlipModal()">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Site Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h4 style="font-size: 1.15rem;">THAY DEE CLOTHING (เท่ดี)</h4>
+                    <p>ร้านขายเสื้อผ้าแฟชั่นออนไลน์สไตล์มินิมอล ใส่สบายได้ทุกวัน คัดสรรผ้าเกรดคุณภาพ ตอบโจทย์ทั้งวันทำงานและวันพักผ่อน ชำระเงินง่ายผ่าน BCEL OnePay QR Code</p>
+                </div>
+                <div class="footer-col">
+                    <h4>การสั่งซื้อและจัดส่ง</h4>
+                    <p>
+                        • จัดส่งพัสดุด่วน 1-2 วันทำการ<br>
+                        • ส่งฟรีเมื่อยอดสั่งซื้อครบ ₭400,000 ขึ้นไป<br>
+                        • ตรวจสอบสถานะการจัดส่งได้ตลอดเวลา
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h4>การชำระเงิน</h4>
+                    <p>
+                        • รองรับ BCEL OnePay QR Code สแกนจ่ายผ่านแอป BCEL One<br>
+                        • แนบสลิปเพื่อยืนยันออเดอร์ทันที ปลอดภัย รวดเร็ว
+                    </p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 THAY DEE CLOTHING. All rights reserved. เว็บแอปพลิเคชันขายเสื้อผ้าออนไลน์พร้อมระบบชำระเงิน BCEL OnePay QR Code</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/qrcode.min.js"></script>
+    <script src="js/promptpay.js"></script>
+    <script src="js/products-data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
