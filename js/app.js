@@ -1346,6 +1346,9 @@ function confirmPaymentAndOrder() {
 
     if (AppState.paymentTimerId) clearInterval(AppState.paymentTimerId);
 
+    // Push to Google Sheets if configured
+    pushToGoogleSheets("newOrder", { order: AppState.currentOrderDraft, products: AppState.products });
+
     AppState.checkoutStep = 3;
     renderCheckoutStep();
     showToast(AppState.currentLang === 'la' ? 'ສັ່ງຊື້ສິນຄ້າສຳເລັດແລ້ວ!' : 'สร้างคำสั่งซื้อและบันทึกข้อมูลเรียบร้อยแล้ว!', 'success');
@@ -1918,6 +1921,7 @@ function handleAddNewProduct(event) {
     renderCatalog();
     cancelEditProduct();
     switchAdminTab('products');
+    pushToGoogleSheets("syncProducts", { products: AppState.products });
 }
 
 function deleteProduct(index) {
@@ -1928,6 +1932,7 @@ function deleteProduct(index) {
         saveProducts();
         renderCatalog();
         switchAdminTab('products');
+        pushToGoogleSheets("syncProducts", { products: AppState.products });
         showToast(isLao ? 'ລຶບສິນຄ້າຮຽບຮ້ອຍແລ້ວ' : 'ลบสินค้าเรียบร้อยแล้ว');
     }
 }
@@ -2168,6 +2173,41 @@ function renderAdminSettings(container) {
                 </div>
             </div>
 
+            <!-- ===== GOOGLE SHEETS INTEGRATION SECTION ===== -->
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:18px;margin-bottom:24px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+                    <span style="font-size:1.3rem;">📊</span>
+                    <strong style="font-size:1rem;color:#15803d;">${isLao ? 'ເຊື່ອມຕໍ່ Google Sheets (Real-time Live Sync)' : 'เชื่อมต่อ Google Sheets (Real-time Live Sync)'}</strong>
+                </div>
+
+                <div class="form-group">
+                    <label>${isLao ? 'Google Apps Script Web App URL' : 'Google Apps Script Web App URL'}</label>
+                    <input type="url" id="setting-gsheets-url" placeholder="https://script.google.com/macros/s/.../exec" value="${s.googleSheetsUrl || ''}">
+                    <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">
+                        ${isLao ? 'ນຳ Web App URL ຈາກ Google Apps Script ມາໃສ່ບ່ອນນີ້' : 'นำ Web App URL ที่ได้จากการ Deploy ใน Google Apps Script มาวางที่นี่'}
+                    </div>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;">
+                    <button type="button" class="btn btn-outline btn-sm" style="border-color:#16a34a;color:#15803d;" onclick="testGoogleSheetsConnection()">
+                        ⚡ ${isLao ? 'ທົດສອບການເຊື່ອມຕໍ່' : 'ทดสอบการเชื่อมต่อ (Test Connection)'}
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" style="border-color:#0284c7;color:#0369a1;" onclick="syncFromGoogleSheets()">
+                        📥 ${isLao ? 'ດຶງຂໍ້ມູນສົດຈາກ Sheets' : 'ดึงข้อมูลสดจาก Sheets (Fetch Live)'}
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" style="border-color:#d97706;color:#b45309;" onclick="pushAllToGoogleSheets()">
+                        📤 ${isLao ? 'ສົ່ງຂໍ້ມູນທັງໝົດຂຶ້ນ Sheets' : 'ส่งข้อมูลทั้งหมดขึ้น Sheets (Push All)'}
+                    </button>
+                </div>
+
+                <div style="margin-top:16px;display:flex;align-items:center;gap:8px;font-size:0.88rem;color:#166534;">
+                    <input type="checkbox" id="setting-gsheets-autosync" ${s.googleSheetsAutoSync ? 'checked' : ''} style="width:16px;height:16px;cursor:pointer;">
+                    <label for="setting-gsheets-autosync" style="cursor:pointer;font-weight:600;">
+                        ${isLao ? 'ເປີດໃຊ້ Auto Real-Time Live Sync (ດຶງຂໍ້ມູນອັດໂນມັດທຸກໆ 20 ວິນາທີ)' : 'เปิดใช้งาน Auto Real-Time Live Sync (ซิงค์อัตโนมัติทุก 20 วินาที)'}
+                    </label>
+                </div>
+            </div>
+
             <div class="form-grid">
                 <div class="form-group">
                     <label>${isLao ? 'ຄ່າຈັດສົ່ງມາດຕະຖານ (₭ ກີບ)' : 'ค่าจัดส่งมาตรฐาน (₭ กีบ)'}</label>
@@ -2254,11 +2294,18 @@ function handleSaveSettings(event) {
         AppState.tempBcelQr = null;
     }
 
+    // --- Google Sheets ---
+    const gsheetsUrlEl = document.getElementById('setting-gsheets-url');
+    if (gsheetsUrlEl) AppState.settings.googleSheetsUrl = gsheetsUrlEl.value.trim();
+    const gsheetsAutoSyncEl = document.getElementById('setting-gsheets-autosync');
+    if (gsheetsAutoSyncEl) AppState.settings.googleSheetsAutoSync = gsheetsAutoSyncEl.checked;
+
     // --- Shipping ---
     AppState.settings.shippingFee = Number(document.getElementById('setting-shipping-fee').value);
     AppState.settings.freeShippingThreshold = Number(document.getElementById('setting-free-ship').value);
 
     saveSettings();
+    setupGoogleSheetsAutoSync();
 
     // Apply branding changes to the live page immediately
     applyStoreBranding();
@@ -2356,7 +2403,6 @@ ${AppState.currentLang === 'la' ? 'ຍອດສຸດທິ:' : 'ยอดสุ
 ${AppState.currentLang === 'la' ? 'ສະຖານະ:' : 'สถานะ:'} ${ord.status}
     `);
 }
-
 function exportOrdersJson() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState.orders, null, 2));
     const downloadAnchor = document.createElement('a');
@@ -2365,6 +2411,171 @@ function exportOrdersJson() {
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
+}
+
+// ==========================================================================
+// Google Sheets Real-Time Sync Logic
+// ==========================================================================
+let gsheetsSyncTimer = null;
+
+function testGoogleSheetsConnection() {
+    const url = document.getElementById('setting-gsheets-url').value.trim() || (AppState.settings && AppState.settings.googleSheetsUrl);
+    if (!url) {
+        showToast(AppState.currentLang === 'la' ? 'ກະລຸນາໃສ່ Google Apps Script Web App URL' : 'กรุณาใส่ Google Apps Script Web App URL ก่อนครับ', 'error');
+        return;
+    }
+    showToast(AppState.currentLang === 'la' ? 'ກຳລັງທົດສອບການເຊື່ອມຕໍ່...' : 'กำลังทดสอบการเชื่อมต่อกับ Google Sheets...', 'info');
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showToast(AppState.currentLang === 'la' ? 'ເຊື່ອມຕໍ່ Google Sheets ສຳເລັດແລ້ວ! 🎉' : 'เชื่อมต่อกับ Google Sheets สำเร็จเรียบร้อย! 🎉', 'success');
+            } else {
+                showToast('Google Sheets Error: ' + (data.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showToast(AppState.currentLang === 'la' ? 'ບໍ່ສາມາດເຊື່ອມຕໍ່ໄດ້ ກະລຸນາກວດສອບ URL' : 'ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบ URL หรือสิทธิ์การเข้าถึง', 'error');
+        });
+}
+
+function syncFromGoogleSheets(isSilent = false) {
+    const url = (AppState.settings && AppState.settings.googleSheetsUrl) || (document.getElementById('setting-gsheets-url') ? document.getElementById('setting-gsheets-url').value.trim() : '');
+    if (!url) {
+        if (!isSilent) showToast(AppState.currentLang === 'la' ? 'ກະລຸນາตั้งค่า URL ก่อน' : 'กรุณาตั้งค่า Google Sheets URL ก่อนครับ', 'error');
+        return;
+    }
+
+    if (!isSilent) showToast(AppState.currentLang === 'la' ? 'ກຳລັງດຶງຂໍ້ມູນຈາກ Google Sheets...' : 'กำลังดึงข้อมูลสดจาก Google Sheets...', 'info');
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                let updated = false;
+
+                if (Array.isArray(data.products) && data.products.length > 0) {
+                    AppState.products = data.products;
+                    saveProducts();
+                    updated = true;
+                }
+                if (Array.isArray(data.categories) && data.categories.length > 0) {
+                    AppState.categories = data.categories;
+                    saveCategories();
+                    updated = true;
+                }
+                if (Array.isArray(data.orders)) {
+                    AppState.orders = data.orders;
+                    saveOrders();
+                    updated = true;
+                }
+
+                if (updated) {
+                    renderCatalog();
+                    renderCategoryPills();
+                    if (document.getElementById('admin-modal') && document.getElementById('admin-modal').classList.contains('active')) {
+                        const activeBtn = document.querySelector('.admin-tab-btn.active');
+                        if (activeBtn) {
+                            const tabId = activeBtn.id.replace('tab-btn-', '');
+                            if (tabId === 'orders' || tabId === 'products' || tabId === 'categories') {
+                                switchAdminTab(tabId);
+                            }
+                        }
+                    }
+                }
+
+                if (!isSilent) {
+                    showToast(AppState.currentLang === 'la' ? 'ດຶງຂໍ້ມູນສິນຄ້າ ແລະ ອໍເດີ້ຈາກ Google Sheets ສຳເລັດ!' : 'ดึงข้อมูลสินค้าและออเดอร์จาก Google Sheets เรียบร้อย!', 'success');
+                }
+            } else if (!isSilent) {
+                showToast('Error: ' + data.message, 'error');
+            }
+        })
+        .catch(err => {
+            console.error('Fetch Google Sheets failed:', err);
+            if (!isSilent) {
+                showToast(AppState.currentLang === 'la' ? 'เกิดข้อผิดพลาดในการดึงข้อมูล' : 'เกิดข้อผิดพลาดในการดึงข้อมูลจาก Google Sheets', 'error');
+            }
+        });
+}
+
+function pushToGoogleSheets(action, payload = {}) {
+    const url = AppState.settings && AppState.settings.googleSheetsUrl;
+    if (!url) return;
+
+    const postData = Object.assign({ action: action }, payload);
+
+    fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(postData)
+    }).then(() => {
+        console.log(`[Google Sheets] Pushed action "${action}" successfully.`);
+    }).catch(err => {
+        console.error(`[Google Sheets] Push action "${action}" failed:`, err);
+    });
+}
+
+function pushAllToGoogleSheets() {
+    const url = document.getElementById('setting-gsheets-url').value.trim() || (AppState.settings && AppState.settings.googleSheetsUrl);
+    if (!url) {
+        showToast(AppState.currentLang === 'la' ? 'ກະລຸນາໃສ່ Google Sheets URL' : 'กรุณาใส่ Google Sheets URL ก่อนครับ', 'error');
+        return;
+    }
+
+    showToast(AppState.currentLang === 'la' ? 'ກຳລັງສົ່ງຂໍ້ມູນທັງໝົດຂຶ້ນ Google Sheets...' : 'กำลังส่งข้อมูลทั้งหมดขึ้น Google Sheets...', 'info');
+
+    const payload = {
+        action: 'syncAll',
+        products: AppState.products,
+        categories: AppState.categories,
+        orders: AppState.orders,
+        settings: AppState.settings
+    };
+
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showToast(AppState.currentLang === 'la' ? 'ສົ່ງຂໍ້ມູນທັງໝົດຂຶ້ນ Google Sheets ສຳເລັດແລ້ວ!' : 'ส่งข้อมูลทั้งหมดขึ้น Google Sheets เรียบร้อยแล้ว!', 'success');
+        } else {
+            showToast('Sync Error: ' + (data.message || 'Unknown'), 'error');
+        }
+    })
+    .catch(err => {
+        console.warn('POST JSON failed, fallbacking to no-cors fetch:', err);
+        fetch(url, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        }).then(() => {
+            showToast(AppState.currentLang === 'la' ? 'ส่งข้อมูลสำเร็จแล้ว' : 'ส่งข้อมูลไปยัง Google Sheets เรียบร้อยแล้ว', 'success');
+        }).catch(e => {
+            showToast('Error pushing data to Google Sheets', 'error');
+        });
+    });
+}
+
+function setupGoogleSheetsAutoSync() {
+    if (gsheetsSyncTimer) {
+        clearInterval(gsheetsSyncTimer);
+        gsheetsSyncTimer = null;
+    }
+
+    if (AppState.settings && AppState.settings.googleSheetsUrl && AppState.settings.googleSheetsAutoSync) {
+        syncFromGoogleSheets(true);
+        gsheetsSyncTimer = setInterval(() => {
+            syncFromGoogleSheets(true);
+        }, 20000);
+        console.log('[Google Sheets] Auto Real-time Live Sync active (20s polling).');
+    }
 }
 
 // ==========================================================================
@@ -2380,6 +2591,7 @@ document.addEventListener('DOMContentLoaded', () => {
     applyStoreBranding();
 
     updateCartBadge();
+    setupGoogleSheetsAutoSync();
 
     // Search input
     const searchInput = document.getElementById('search-input');
